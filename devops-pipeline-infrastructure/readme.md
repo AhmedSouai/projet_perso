@@ -1,35 +1,38 @@
-# devops-pipeline-infrastructure 🚀
+# devops-pipeline-ci-cd 🚀
 
-Ce projet implémente un pipeline **CI/CD** complet avec **Jenkins**, **Docker**, **Kubernetes**, **Terraform**, et **Vault**.
+Ce projet implémente un pipeline **CI/CD** complet avec **Jenkins** qui exécute plusieurs types de tests :
+- **Tests unitaires** 🧪
+- **Tests d'intégration** 🔗
+- **Tests de performance** 🚀
+- **Tests de sécurité** 🔐
 
 ## Technologies utilisées 🛠️
 - **Jenkins** pour l'orchestration du pipeline 🔧
 - **Docker** pour la containerisation de l'application 🐳
-- **Kubernetes** pour l'orchestration des conteneurs ☸️
-- **Terraform** pour gérer l'infrastructure 💻
-- **Vault** pour gérer les secrets de manière sécurisée 🔒
+- **Flask** pour l'application web Python 🐍
+- **Bandit** pour l'analyse de sécurité 🔒
 
 ## Étapes du pipeline 🔄
-1. **Clonage du code source** depuis le dépôt 💻
-2. **Analyse statique du code** avec **SonarQube** 🧑‍💻
-3. **Création et push** de l'image Docker 🐳
-4. **Exécution des tests unitaires** 🧪
-5. **Déploiement de l'application** sur Kubernetes ☸️
-6. **Notifications** via **Slack** 💬
+1. **Clonage du code** depuis le dépôt Git 💻
+2. **Build Docker Image** 🐳
+3. **Tests Unitaires** 🧪
+4. **Tests d'Intégration** 🔗
+5. **Tests de Performance** 🚀
+6. **Tests de Sécurité** 🔐
+7. **Push de l'image Docker** vers Docker Hub 🚀
+8. **Notification Slack** 💬
 
 ## Prérequis 🔑
 - **Jenkins** installé et configuré ✅
-- **Kubernetes** cluster configuré 🌐
-- **Vault** pour la gestion des secrets 🔐
-- **Terraform** pour la gestion de l'infrastructure 🛠️
+- **Docker** installé 🐳
+- **Bandit** pour la sécurité 🔒
+- **Flask** pour l'application Python 🐍
 
 ---
 
-**Comment démarrer 🏁 :**
-1. Clonez le dépôt git.
-2. Configurez Jenkins avec les outils nécessaires.
-3. Assurez-vous que **Docker** et **Kubernetes** sont installés.
-4. Configurez **Vault** pour gérer vos secrets.
-5. Lancez le pipeline avec Jenkins et profitez du CI/CD automatisé ! 🚀
+Pour démarrer :
+1. Clonez ce dépôt.
+2. Configurez Jenkins avec le pipeline et exécutez-le.
+3. Vérifiez les résultats des tests.
 
 ---
