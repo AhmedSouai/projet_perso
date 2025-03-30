@@ -9,15 +9,17 @@ pipeline {
     stages {
         stage('Cloner le code') {
             steps {
-                // Cloner le code source
-                git 'https://github.com/ton_repertoire.git'
+                script {
+                    echo "Clonage du code depuis GitHub..."
+                    git 'https://github.com/ton_repertoire.git'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Construire l'image Docker
                 script {
+                    echo "Construction de l'image Docker..."
                     sh 'docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE .'
                 }
             }
@@ -25,44 +27,46 @@ pipeline {
 
         stage('Tests Unitaires') {
             steps {
-                // Lancer les tests unitaires
                 script {
-                    sh 'python3 -m unittest discover app/src/tests/test_main.py'
+                    echo "Exécution des tests unitaires..."
+                    sh 'python3 -m unittest discover app/src/tests/ || exit 1'
                 }
             }
         }
 
         stage('Tests d\'Intégration') {
             steps {
-                // Lancer les tests d'intégration
                 script {
-                    sh 'python3 -m unittest discover app/src/tests/test_integration.py'
+                    echo "Exécution des tests d'intégration..."
+                    sh 'python3 -m unittest discover app/src/tests/ || exit 1'
                 }
             }
         }
 
         stage('Tests de Performance') {
             steps {
-                // Lancer les tests de performance (utilise un outil comme locust ou autre)
                 script {
-                    sh 'python3 -m unittest discover app/src/tests/test_performance.py'
+                    echo "Test de performance en cours..."
+                    timeout(time: 60, unit: 'SECONDS') {
+                        sh 'python3 -m unittest discover app/src/tests/ || exit 1'
+                    }
                 }
             }
         }
 
         stage('Tests de Sécurité') {
             steps {
-                // Lancer les tests de sécurité (par exemple avec bandit)
                 script {
-                    sh 'bandit -r app/src'
+                    echo "Analyse de sécurité avec Bandit..."
+                    sh 'bandit -r app/src || exit 1'
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                // Pousser l'image Docker vers le registre
                 script {
+                    echo "Poussée de l'image Docker vers le registre..."
                     sh 'docker push $DOCKER_REGISTRY/$DOCKER_IMAGE'
                 }
             }
@@ -70,19 +74,20 @@ pipeline {
 
         stage('Notification') {
             steps {
-                // Envoi d'une notification Slack (facultatif)
-                slackSend (channel: '#notifications', message: "Pipeline ${currentBuild.currentResult}: ${env.JOB_NAME} ${env.BUILD_NUMBER}")
+                script {
+                    echo "Envoi d'une notification..."
+                    slackSend (channel: '#notifications', message: "Pipeline ${currentBuild.currentResult}: ${env.JOB_NAME} ${env.BUILD_NUMBER}")
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Le pipeline a réussi avec succès!"
+            echo "Le pipeline a réussi avec succès !"
         }
         failure {
-            echo "Le pipeline a échoué."
+            echo "Le pipeline a échoué. Vérifie les logs !"
         }
     }
 }
-
