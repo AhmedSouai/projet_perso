@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "my-test-app:${BUILD_NUMBER}"
-        DOCKER_REGISTRY = "docker.io/myuser"
+        DOCKER_REGISTRY = "docker.io/xxxx"
     }
 
     stages {
