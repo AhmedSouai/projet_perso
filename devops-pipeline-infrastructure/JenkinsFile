@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     echo "Clonage du code depuis GitHub..."
-                    git 'https://github.com/ton_repertoire.git'
+                    git 'https://github.com/AhmedSouai/projet_perso.git'
                 }
             }
         }
@@ -19,8 +19,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Construction de l'image Docker..."
-                    sh 'docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE .'
+                    dir('devops-pipeline-infrastructure') {
+                        echo "Construction de l'image Docker..."
+                        sh 'docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE .'
+                    }
                 }
             }
         }
@@ -28,8 +30,10 @@ pipeline {
         stage('Tests Unitaires') {
             steps {
                 script {
-                    echo "Exécution des tests unitaires..."
-                    sh 'python3 -m unittest discover app/src/tests/ || exit 1'
+                    dir('devops-pipeline-infrastructure/app/src/tests') {
+                        echo "Exécution des tests unitaires..."
+                        sh 'python3 -m unittest test_main.py || exit 1'
+                    }
                 }
             }
         }
@@ -37,8 +41,10 @@ pipeline {
         stage('Tests d\'Intégration') {
             steps {
                 script {
-                    echo "Exécution des tests d'intégration..."
-                    sh 'python3 -m unittest discover app/src/tests/ || exit 1'
+                    dir('devops-pipeline-infrastructure/app/src/tests') {
+                        echo "Exécution des tests d'intégration..."
+                        sh 'python3 -m unittest test_integration.py || exit 1'
+                    }
                 }
             }
         }
@@ -46,9 +52,11 @@ pipeline {
         stage('Tests de Performance') {
             steps {
                 script {
-                    echo "Test de performance en cours..."
-                    timeout(time: 60, unit: 'SECONDS') {
-                        sh 'python3 -m unittest discover app/src/tests/ || exit 1'
+                    dir('devops-pipeline-infrastructure/app/src/tests') {
+                        echo "Test de performance en cours..."
+                        timeout(time: 60, unit: 'SECONDS') {
+                            sh 'python3 -m unittest test_performance.py || exit 1'
+                        }
                     }
                 }
             }
@@ -57,8 +65,10 @@ pipeline {
         stage('Tests de Sécurité') {
             steps {
                 script {
-                    echo "Analyse de sécurité avec Bandit..."
-                    sh 'bandit -r app/src || exit 1'
+                    dir('devops-pipeline-infrastructure/app/src/tests') {
+                        echo "Exécution des tests de sécurité..."
+                        sh 'python3 -m unittest test_security.py || exit 1'
+                    }
                 }
             }
         }
