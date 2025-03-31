@@ -76,8 +76,10 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
+                    dir('devops-pipeline-infrastructure') {
                     echo "Poussée de l'image Docker vers le registre..."
                     sh 'docker push $DOCKER_REGISTRY/$DOCKER_IMAGE'
+                    }
                 }
             }
         }
