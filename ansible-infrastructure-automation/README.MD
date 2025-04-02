@@ -6,6 +6,7 @@ Ce projet automatise la sécurité des serveurs en appliquant des correctifs de 
 ## Arborescence du projet
 
 ansible-infrastructure-automation/
+
 ├── inventory.ini 
 
 ├── playbook.yml 
