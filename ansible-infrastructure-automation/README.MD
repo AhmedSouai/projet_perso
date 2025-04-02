@@ -1,0 +1,15 @@
+# Ansible Security Automation
+
+## Description
+Ce projet automatise la sécurité des serveurs en appliquant des correctifs de sécurité, en scannant les vulnérabilités et en gérant les accès SSH à l'aide d'Ansible et OpenSCAP.
+
+## Arborescence du projet
+
+ansible-infrastructure-automation/
+├── inventory.ini 
+├── playbook.yml 
+├── tasks_security_patch.yml 
+├── tasks_ssh_access.yml
+├── tasks_vulnerability_scan.yml 
+├── handlers.yml 
+├── README.md
