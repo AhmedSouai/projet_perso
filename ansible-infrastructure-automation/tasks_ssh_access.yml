@@ -1,42 +1,54 @@
 ---
 - name: Configurer un utilisateur SSH sécurisé
 
-  # Tâche 1 : Créer un utilisateur administrateur `secadmin`
+  - name: Vérifier si l'utilisateur secadmin existe déjà
+    getent:
+      database: passwd
+      key: secadmin
+    register: user_exists
+    failed_when: false
+
   - name: Ajouter un utilisateur SSH sécurisé (secadmin)
     user:
-      name: secadmin  # Crée l'utilisateur secadmin
-      groups: sudo  # Ajoute l'utilisateur au groupe sudo pour des privilèges administratifs
-      shell: /bin/bash  # Définit le shell Bash pour l'utilisateur
-      create_home: yes  # Crée un répertoire personnel pour l'utilisateur
-    # Assurer que l'utilisateur est bien créé
+      name: secadmin
+      groups: sudo
+      shell: /bin/bash
+      create_home: yes
+    when: user_exists.found == false
 
-  # Tâche 2 : Copier la clé SSH pour l'utilisateur `secadmin`
   - name: Copier la clé SSH pour secadmin
     authorized_key:
-      user: secadmin  # Utilisateur pour lequel on ajoute la clé SSH
+      user: secadmin
       state: present
-      key: "{{ lookup('file', '/chemin/vers/ma/clé_publique_rsa.pub') }}"  # Remplacer par le chemin de ta clé publique
+      key: "{{ lookup('file', '/chemin/vers/ma/clé_publique_rsa.pub') }}"
+    when: user_exists.found == true
 
-  # Tâche 3 : Désactiver l'accès SSH pour root
   - name: Désactiver l'accès SSH pour root
     lineinfile:
-      path: /etc/ssh/sshd_config  # Fichier de configuration SSH
-      regexp: '^PermitRootLogin'  # Recherche la ligne PermitRootLogin
-      line: 'PermitRootLogin no'  # Désactive l'accès SSH pour root
+      path: /etc/ssh/sshd_config
+      regexp: '^PermitRootLogin'
+      line: 'PermitRootLogin no'
     notify:
-      - restart_ssh  # Redémarre SSH pour appliquer les modifications
+      - restart_ssh
+    when: user_exists.found == false
 
-  # Tâche 4 : Limiter l'accès SSH aux utilisateurs autorisés (secadmin uniquement)
   - name: Limiter l'accès SSH à secadmin
     lineinfile:
-      path: /etc/ssh/sshd_config  # Fichier de configuration SSH
-      regexp: '^AllowUsers'  # Recherche la ligne AllowUsers
-      line: 'AllowUsers secadmin'  # Limite l'accès SSH uniquement à secadmin
+      path: /etc/ssh/sshd_config
+      regexp: '^AllowUsers'
+      line: 'AllowUsers secadmin'
     notify:
-      - restart_ssh  # Redémarre SSH pour appliquer les modifications
+      - restart_ssh
+    when: user_exists.found == false
 
-  # Tâche 5 : Redémarrer le service SSH pour appliquer les changements
   - name: Redémarrer le service SSH
     service:
-      name: ssh  # Nom du service SSH
-      state: restarted  # Redémarre le service SSH pour appliquer les modifications
+      name: ssh
+      state: restarted
+    when: user_exists.found == false
+
+  handlers:
+    - name: restart_ssh
+      service:
+        name: ssh
+        state: restarted
