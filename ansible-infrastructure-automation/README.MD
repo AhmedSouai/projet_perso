@@ -21,6 +21,7 @@ Avant d'exécuter ce playbook, assurez-vous que les éléments suivants sont ins
 ## 🔍 Structure du Projet
 
 ansible-infrastructure-automation/ 
+
 ├── inventory.ini # Fichier d'inventaire Ansible avec les hôtes cibles
 
 ├── playbook.yml # Playbook principal exécutant toutes les tâches 
