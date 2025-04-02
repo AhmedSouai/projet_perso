@@ -1,17 +1,57 @@
 ---
-- name: Mise à jour des paquets de sécurité (Debian/Ubuntu)
-  apt:
-    upgrade: dist
-    autoremove: yes
-  when: ansible_os_family == "Debian"
+- name: Appliquer des patchs de sécurité
 
-- name: Mise à jour des paquets de sécurité (CentOS/RHEL)
-  yum:
-    name: "*"
-    state: latest
-    security: yes
-  when: ansible_os_family == "RedHat"
+  # Mise à jour des paquets de sécurité sur les systèmes Debian/Ubuntu
+  - name: Mise à jour des paquets de sécurité (Debian/Ubuntu)
+    apt:
+      upgrade: dist               # Effectue une mise à jour des paquets installés
+      only_upgrade: yes            # Assure de ne mettre à jour que les paquets déjà installés, sans en ajouter de nouveaux
+      autoclean: yes               # Nettoie les paquets inutilisés pour libérer de l'espace
+      autoremove: yes              # Supprime les paquets obsolètes ou inutiles
+    when: ansible_os_family == "Debian"  # Cette tâche s'exécute seulement sur les systèmes Debian/Ubuntu
 
-- name: Redémarrer si nécessaire
-  reboot:
-  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+  # Mise à jour des paquets de sécurité sur les systèmes CentOS/RHEL
+  - name: Mise à jour des paquets de sécurité (CentOS/RHEL)
+    yum:
+      name: "*"                    # Met à jour tous les paquets
+      state: latest                # Met à jour vers la dernière version disponible
+      security: yes                # Applique uniquement les mises à jour de sécurité
+    when: ansible_os_family == "RedHat"  # Cette tâche s'exécute seulement sur les systèmes CentOS/RHEL
+
+  # Vérification si un redémarrage est nécessaire sur les systèmes Debian/Ubuntu
+  - name: Vérifier si un reboot est nécessaire (Debian/Ubuntu)
+    stat:
+      path: /var/run/reboot-required  # Vérifie l'existence du fichier qui indique qu'un redémarrage est nécessaire
+    register: reboot_required           # Enregistre le résultat dans une variable `reboot_required`
+    when: ansible_os_family == "Debian"  # Cette tâche s'exécute seulement sur les systèmes Debian/Ubuntu
+
+  # Vérification si un redémarrage est nécessaire sur les systèmes CentOS/RHEL
+  - name: Vérifier si un reboot est nécessaire (CentOS/RHEL)
+    stat:
+      path: /var/run/reboot-required  # Vérifie l'existence du fichier qui indique qu'un redémarrage est nécessaire
+    register: reboot_required           # Enregistre le résultat dans une variable `reboot_required`
+    when: ansible_os_family == "RedHat"  # Cette tâche s'exécute seulement sur les systèmes CentOS/RHEL
+
+  # Si un redémarrage est nécessaire sur Debian/Ubuntu, redémarre les services SSH
+  - name: Redémarrer les services si nécessaire (Debian/Ubuntu)
+    service:
+      name: "{{ item }}"               # Redémarre le service spécifié dans la liste `item`
+      state: restarted                 # Assure que le service est redémarré
+    with_items:
+      - sshd                           # Spécifie le service SSH à redémarrer
+    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
+
+  # Si un redémarrage est nécessaire sur CentOS/RHEL, redémarre les services SSH
+  - name: Redémarrer les services si nécessaire (CentOS/RHEL)
+    service:
+      name: "{{ item }}"               # Redémarre le service spécifié dans la liste `item`
+      state: restarted                 # Assure que le service est redémarré
+    with_items:
+      - sshd                           # Spécifie le service SSH à redémarrer
+    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
+
+  # Cette tâche tente de redémarrer le système uniquement si un redémarrage est nécessaire
+  - name: Ne pas redémarrer le système si non nécessaire
+    reboot:
+    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
+    ignore_errors: yes                 # Si le redémarrage échoue (par exemple, aucun redémarrage nécessaire), ignore l'erreur et continue l'exécution
