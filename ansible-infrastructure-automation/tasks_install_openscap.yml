@@ -15,7 +15,6 @@
   apt:
     name: 
       - openscap-scanner
-      - scap-security-guide
     state: present
   when: ansible_os_family == "Debian" and openscap_installed_debian.rc != 0
 
@@ -23,7 +22,6 @@
   yum:
     name: 
       - openscap-scanner
-      - scap-security-guide
     state: present
   when: ansible_os_family == "RedHat" and openscap_installed_redhat.rc != 0
 
