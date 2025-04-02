@@ -1,20 +1,42 @@
 ---
-- name: Ajouter un utilisateur SSH sécurisé
-  user:
-    name: secadmin
-    groups: sudo
-    shell: /bin/bash
-    create_home: yes
+- name: Configurer un utilisateur SSH sécurisé
 
-- name: Copier la clé SSH pour secadmin
-  authorized_key:
-    user: secadmin
-    state: present
-    key: "ssh-rsa AAAAB3... utilisateur@machine"
+  # Tâche 1 : Créer un utilisateur administrateur `secadmin`
+  - name: Ajouter un utilisateur SSH sécurisé (secadmin)
+    user:
+      name: secadmin  # Crée l'utilisateur secadmin
+      groups: sudo  # Ajoute l'utilisateur au groupe sudo pour des privilèges administratifs
+      shell: /bin/bash  # Définit le shell Bash pour l'utilisateur
+      create_home: yes  # Crée un répertoire personnel pour l'utilisateur
+    # Assurer que l'utilisateur est bien créé
 
-- name: Désactiver l'accès SSH pour root
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin no'
-  notify: restart_ssh
+  # Tâche 2 : Copier la clé SSH pour l'utilisateur `secadmin`
+  - name: Copier la clé SSH pour secadmin
+    authorized_key:
+      user: secadmin  # Utilisateur pour lequel on ajoute la clé SSH
+      state: present
+      key: "{{ lookup('file', '/chemin/vers/ma/clé_publique_rsa.pub') }}"  # Remplacer par le chemin de ta clé publique
+
+  # Tâche 3 : Désactiver l'accès SSH pour root
+  - name: Désactiver l'accès SSH pour root
+    lineinfile:
+      path: /etc/ssh/sshd_config  # Fichier de configuration SSH
+      regexp: '^PermitRootLogin'  # Recherche la ligne PermitRootLogin
+      line: 'PermitRootLogin no'  # Désactive l'accès SSH pour root
+    notify:
+      - restart_ssh  # Redémarre SSH pour appliquer les modifications
+
+  # Tâche 4 : Limiter l'accès SSH aux utilisateurs autorisés (secadmin uniquement)
+  - name: Limiter l'accès SSH à secadmin
+    lineinfile:
+      path: /etc/ssh/sshd_config  # Fichier de configuration SSH
+      regexp: '^AllowUsers'  # Recherche la ligne AllowUsers
+      line: 'AllowUsers secadmin'  # Limite l'accès SSH uniquement à secadmin
+    notify:
+      - restart_ssh  # Redémarre SSH pour appliquer les modifications
+
+  # Tâche 5 : Redémarrer le service SSH pour appliquer les changements
+  - name: Redémarrer le service SSH
+    service:
+      name: ssh  # Nom du service SSH
+      state: restarted  # Redémarre le service SSH pour appliquer les modifications
