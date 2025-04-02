@@ -65,13 +65,12 @@ git clone https://github.com/AhmedSouai/projet_perso/
 cd ansible-infrastructure-automation
 
 
-🛑 Attention
+## 🛑 Attention
 Environnement de production : Bien que ce playbook soit conçu pour être utilisé en production, il est recommandé de le tester d'abord sur un environnement de staging pour éviter toute interruption de service.
 
 Redémarrage des services : Le playbook redémarre certains services comme sshd pour appliquer les mises à jour de sécurité, mais il n'effectue pas de redémarrage complet des serveurs.
 
-📄 License
+## 📄 License
 Ce projet est sous la licence MIT. Vous pouvez librement l'utiliser, le modifier, et le distribuer selon les termes de cette licence.
 
-📧 Contact
-Pour toute question ou assistance, n'hésitez pas à me contacter via mon adresse email ou ouvrir une issue sur GitHub.
+
