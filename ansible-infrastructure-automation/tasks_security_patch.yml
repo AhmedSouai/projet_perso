@@ -1,57 +1,54 @@
 ---
-- name: Appliquer des patchs de sécurité
+- name: Mise à jour des paquets de sécurité (Debian/Ubuntu)
+  apt:
+    upgrade: dist                  # Effectue une mise à jour des paquets installés
+    only_upgrade: yes               # Assure de ne mettre à jour que les paquets déjà installés
+    autoclean: yes                  # Nettoie les paquets inutilisés
+    autoremove: yes                 # Supprime les paquets obsolètes
+  when: ansible_os_family == "Debian"
 
-  # Mise à jour des paquets de sécurité sur les systèmes Debian/Ubuntu
-  - name: Mise à jour des paquets de sécurité (Debian/Ubuntu)
-    apt:
-      upgrade: dist               # Effectue une mise à jour des paquets installés
-      only_upgrade: yes            # Assure de ne mettre à jour que les paquets déjà installés, sans en ajouter de nouveaux
-      autoclean: yes               # Nettoie les paquets inutilisés pour libérer de l'espace
-      autoremove: yes              # Supprime les paquets obsolètes ou inutiles
-    when: ansible_os_family == "Debian"  # Cette tâche s'exécute seulement sur les systèmes Debian/Ubuntu
+- name: Mise à jour des paquets de sécurité (CentOS/RHEL)
+  yum:
+    name: "*"                       # Met à jour tous les paquets
+    state: latest                   # Met à jour vers la dernière version disponible
+    security: yes                   # Applique uniquement les mises à jour de sécurité
+  when: ansible_os_family == "RedHat"
 
-  # Mise à jour des paquets de sécurité sur les systèmes CentOS/RHEL
-  - name: Mise à jour des paquets de sécurité (CentOS/RHEL)
-    yum:
-      name: "*"                    # Met à jour tous les paquets
-      state: latest                # Met à jour vers la dernière version disponible
-      security: yes                # Applique uniquement les mises à jour de sécurité
-    when: ansible_os_family == "RedHat"  # Cette tâche s'exécute seulement sur les systèmes CentOS/RHEL
+- name: Vérifier si un reboot est nécessaire (Debian/Ubuntu)
+  stat:
+    path: /var/run/reboot-required   # Vérifie le fichier `reboot-required`
+  register: reboot_required
+  when: ansible_os_family == "Debian"
 
-  # Vérification si un redémarrage est nécessaire sur les systèmes Debian/Ubuntu
-  - name: Vérifier si un reboot est nécessaire (Debian/Ubuntu)
-    stat:
-      path: /var/run/reboot-required  # Vérifie l'existence du fichier qui indique qu'un redémarrage est nécessaire
-    register: reboot_required           # Enregistre le résultat dans une variable `reboot_required`
-    when: ansible_os_family == "Debian"  # Cette tâche s'exécute seulement sur les systèmes Debian/Ubuntu
+- name: Vérifier si un reboot est nécessaire (CentOS/RHEL)
+  stat:
+    path: /var/run/reboot-required   # Vérifie le fichier `reboot-required`
+  register: reboot_required
+  when: ansible_os_family == "RedHat"
 
-  # Vérification si un redémarrage est nécessaire sur les systèmes CentOS/RHEL
-  - name: Vérifier si un reboot est nécessaire (CentOS/RHEL)
-    stat:
-      path: /var/run/reboot-required  # Vérifie l'existence du fichier qui indique qu'un redémarrage est nécessaire
-    register: reboot_required           # Enregistre le résultat dans une variable `reboot_required`
-    when: ansible_os_family == "RedHat"  # Cette tâche s'exécute seulement sur les systèmes CentOS/RHEL
+- name: Déboguer la variable reboot_required
+  debug:
+    msg: "Contenu de reboot_required: {{ reboot_required }}"
 
-  # Si un redémarrage est nécessaire sur Debian/Ubuntu, redémarre les services SSH
-  - name: Redémarrer les services si nécessaire (Debian/Ubuntu)
-    service:
-      name: "{{ item }}"               # Redémarre le service spécifié dans la liste `item`
-      state: restarted                 # Assure que le service est redémarré
-    with_items:
-      - sshd                           # Spécifie le service SSH à redémarrer
-    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
+- name: Redémarrer les services si nécessaire (Debian/Ubuntu)
+  service:
+    name: "{{ item }}"               # Redémarre le service spécifié
+    state: restarted                 # Assure que le service est redémarré
+  with_items:
+    - sshd                           # Spécifie le service SSH à redémarrer
+  when: reboot_required is defined and reboot_required.stat is defined and reboot_required.stat.exists  # Vérifie que reboot_required et reboot_required.stat existent avant d'y accéder
 
-  # Si un redémarrage est nécessaire sur CentOS/RHEL, redémarre les services SSH
-  - name: Redémarrer les services si nécessaire (CentOS/RHEL)
-    service:
-      name: "{{ item }}"               # Redémarre le service spécifié dans la liste `item`
-      state: restarted                 # Assure que le service est redémarré
-    with_items:
-      - sshd                           # Spécifie le service SSH à redémarrer
-    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
+- name: Redémarrer les services si nécessaire (CentOS/RHEL)
+  service:
+    name: "{{ item }}"               # Redémarre le service spécifié
+    state: restarted                 # Assure que le service est redémarré
+  with_items:
+    - sshd                           # Spécifie le service SSH à redémarrer
+  when: reboot_required is defined and reboot_required.stat is defined and reboot_required.stat.exists  # Vérifie que reboot_required et reboot_required.stat existent avant d'y accéder
 
-  # Cette tâche tente de redémarrer le système uniquement si un redémarrage est nécessaire
-  - name: Ne pas redémarrer le système si non nécessaire
-    reboot:
-    when: reboot_required.stat.exists  # Cette tâche s'exécute seulement si le fichier `reboot-required` existe
-    ignore_errors: yes                 # Si le redémarrage échoue (par exemple, aucun redémarrage nécessaire), ignore l'erreur et continue l'exécution
+- name: Ne pas redémarrer le système si non nécessaire
+  reboot:
+    reboot_timeout: 600              # Temps d'attente avant d'estimer que le redémarrage est terminé
+    test_command: uptime            # Teste si le système a redémarré
+  when: reboot_required is defined and reboot_required.stat is defined and reboot_required.stat.exists  # Vérifie que reboot_required et reboot_required.stat existent avant d'y accéder
+  ignore_errors: yes                # Ignore les erreurs si le redémarrage échoue
