@@ -1,0 +1,20 @@
+---
+- name: Ajouter un utilisateur SSH sécurisé
+  user:
+    name: secadmin
+    groups: sudo
+    shell: /bin/bash
+    create_home: yes
+
+- name: Copier la clé SSH pour secadmin
+  authorized_key:
+    user: secadmin
+    state: present
+    key: "ssh-rsa AAAAB3... utilisateur@machine"
+
+- name: Désactiver l'accès SSH pour root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: restart_ssh
