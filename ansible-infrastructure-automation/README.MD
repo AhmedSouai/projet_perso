@@ -7,9 +7,15 @@ Ce projet automatise la sécurité des serveurs en appliquant des correctifs de 
 
 ansible-infrastructure-automation/
 ├── inventory.ini 
+
 ├── playbook.yml 
+
 ├── tasks_security_patch.yml 
+
 ├── tasks_ssh_access.yml
+
 ├── tasks_vulnerability_scan.yml 
+
 ├── handlers.yml 
+
 ├── README.md
