@@ -1,0 +1,38 @@
+---
+- name: Vérifier si OpenSCAP est déjà installé (Debian/Ubuntu)
+  command: dpkg -l | grep -i openscap-scanner
+  register: openscap_installed_debian
+  ignore_errors: yes
+  when: ansible_os_family == "Debian"
+
+- name: Vérifier si OpenSCAP est déjà installé (CentOS/RHEL)
+  command: rpm -q openscap-scanner
+  register: openscap_installed_redhat
+  ignore_errors: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Installer OpenSCAP et SCAP Security Guide (Debian)
+  apt:
+    name: 
+      - openscap-scanner
+      - scap-security-guide
+    state: present
+  when: ansible_os_family == "Debian" and openscap_installed_debian.rc != 0
+
+- name: Installer OpenSCAP et SCAP Security Guide (CentOS)
+  yum:
+    name: 
+      - openscap-scanner
+      - scap-security-guide
+    state: present
+  when: ansible_os_family == "RedHat" and openscap_installed_redhat.rc != 0
+
+- name: Afficher un message si OpenSCAP est déjà installé (Debian/Ubuntu)
+  debug:
+    msg: "OpenSCAP est déjà installé sur ce serveur (Debian/Ubuntu)."
+  when: ansible_os_family == "Debian" and openscap_installed_debian.rc == 0
+
+- name: Afficher un message si OpenSCAP est déjà installé (CentOS/RHEL)
+  debug:
+    msg: "OpenSCAP est déjà installé sur ce serveur (CentOS/RHEL)."
+  when: ansible_os_family == "RedHat" and openscap_installed_redhat.rc == 0
