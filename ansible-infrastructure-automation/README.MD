@@ -1,76 +1,52 @@
-# 🚀 Projet d'Automatisation de la Sécurité et du Patch Management avec Ansible
+# Automatisation de la Sécurité des Serveurs 🛡️ (Debian/Ubuntu)
 
-Ce projet utilise **Ansible** pour automatiser la gestion des vulnérabilités, des patchs de sécurité et des configurations SSH sur des serveurs. Il s'agit d'une solution pour appliquer des **patchs de sécurité** sur des systèmes **Debian/Ubuntu** et **CentOS/RHEL**, de **sécuriser l'accès SSH**, et de **scanner les vulnérabilités** à l'aide de **OpenSCAP**. Ce playbook est conçu pour être utilisé en **environnement de production**.
+Ce projet utilise **Ansible** pour automatiser la sécurisation des serveurs **Debian/Ubuntu**, en intégrant des tâches liées à l'accès SSH et en réalisant une analyse de vulnérabilité avec **OpenSCAP**. L'objectif est d'améliorer la sécurité des systèmes en appliquant les meilleures pratiques et en effectuant des vérifications automatiques de sécurité. 🚀
 
-## 🎯 Objectifs du Projet
+## Structure du projet 🗂️
 
-- 🔒 **Sécuriser l'accès SSH** : Créer un utilisateur sécurisé (`secadmin`), désactiver l'accès SSH pour `root`, et limiter l'accès aux utilisateurs autorisés.
-- 🛡️ **Scanner les vulnérabilités** : Utiliser **OpenSCAP** pour scanner les vulnérabilités de sécurité et afficher les résultats détaillés.
-- 🔄 **Appliquer des patchs de sécurité** : Mettre à jour les paquets de sécurité sur les serveurs sans interférer avec les configurations en production.
-- 🔄 **Redémarrage conditionnel** : Ne redémarrer que les services nécessaires, comme `sshd`, si un redémarrage est requis après une mise à jour.
+Le projet est organisé autour d'un **playbook Ansible** et plusieurs fichiers de tâches qui sont inclus dans le playbook principal. Voici une brève description des fichiers présents :
 
-## 🛠️ Prérequis
+### Playbook principal (`playbook.yml`) 📜
 
-Avant d'exécuter ce playbook, assurez-vous que les éléments suivants sont installés sur votre machine et vos serveurs :
+Le fichier principal qui orchestre l'exécution des tâches sur les serveurs cibles. Ce playbook fait appel à trois fichiers de tâches différents :
+1. **Tâches d'accès SSH** : Gestion de l'accès SSH sécurisé, incluant la création d'un utilisateur dédié (secadmin) et la désactivation de l'accès root.
+2. **Installation des paquets nécessaires** : Installation de **OpenSCAP** et autres outils nécessaires pour l'analyse de vulnérabilités.
+3. **Scan de vulnérabilités** : Exécution d'un scan de vulnérabilités avec **OpenSCAP** et génération d'un rapport d'analyse.
 
-- Ansible (version 2.9 ou supérieure)
-- OpenSCAP installé sur les serveurs cibles (voir la tâche `tasks_install_openscap.yml`)
-- Accès SSH avec des droits sudo pour les utilisateurs cibles
-- Clé SSH publique pour l'utilisateur `secadmin` (ou une autre clé valide)
+### Tâches d'accès SSH (`tasks_ssh_access.yml`) 🔐
 
-## 🔍 Structure du Projet
+Ce fichier contient des tâches pour sécuriser l'accès SSH :
+- Vérification de l'existence de l'utilisateur `secadmin`.
+- Création de l'utilisateur `secadmin` s'il n'existe pas, avec ajout au groupe `sudo`.
+- Copie de la clé SSH publique pour l'utilisateur `secadmin`.
+- Désactivation de l'accès SSH pour l'utilisateur `root`.
+- Limitation de l'accès SSH uniquement à l'utilisateur `secadmin`.
 
-ansible-infrastructure-automation/ 
+### Installation des paquets nécessaires (`tasks_install_openscap.yml`) 📦
 
-├── inventory.ini # Fichier d'inventaire Ansible avec les hôtes cibles
+Cette tâche installe les paquets nécessaires pour effectuer un scan de vulnérabilités avec **OpenSCAP**, y compris :
+- **libopenscap8** : Librairie nécessaire pour exécuter les scans.
+- **wget** et **bzip2** : Utilitaires pour télécharger et décompresser les fichiers OVAL nécessaires à l'analyse.
 
-├── playbook.yml # Playbook principal exécutant toutes les tâches 
+### Scan de vulnérabilités avec OpenSCAP (`tasks_vulnerability_scan_with_secadmin.yml`) 🧐
 
-├── tasks_install_openscap.yml # Installation d'OpenSCAP 
+Ce fichier exécute le processus complet pour effectuer un scan de vulnérabilités :
+- Création d'un répertoire pour stocker les fichiers OVAL et les rapports.
+- Téléchargement et décompression des fichiers OVAL pour Ubuntu 20.04 (Focal).
+- Exécution d'un scan avec **OpenSCAP** pour générer un rapport d'analyse détaillé.
+- Affichage du chemin où le rapport est généré.
 
-├── tasks_security_patching.yml # Application des patchs de sécurité 
+## Prérequis 🔧
 
-├── tasks_ssh_access.yml # Configuration de l'accès SSH sécurisé 
+Avant d'exécuter ce projet, assurez-vous d'avoir les éléments suivants :
+- **Ansible** installé sur votre machine de gestion.
+- Un accès SSH fonctionnel à vos serveurs **Debian/Ubuntu** cibles.
+- La clé SSH publique disponible pour l'utilisateur `secadmin`.
 
-└── README.md # Documentation du projet
+## Installation 🏗️
 
+Clonez ce projet et exécutez le playbook Ansible avec la commande suivante :
 
-## ⚙️ Détails des Tâches
-
-### 1. `tasks_install_openscap.yml`
-
-Cette tâche installe **OpenSCAP** sur les serveurs cibles pour effectuer des scans de vulnérabilités. Si OpenSCAP est déjà installé, la tâche passe cette étape.
-
-### 2. `tasks_ssh_access.yml`
-
-- **Création de l'utilisateur sécurisé (`secadmin`)** : Cet utilisateur a des privilèges sudo et un shell Bash.
-- **Désactivation de l'accès SSH pour `root`** : Empêche la connexion SSH en tant que `root`.
-- **Limitation de l'accès SSH** : L'accès SSH est limité uniquement à l'utilisateur `secadmin`.
-- **Copie de la clé SSH** : Copie une clé SSH publique pour l'utilisateur `secadmin` afin d'éviter l'utilisation de mots de passe.
-
-### 3. `tasks_security_patching.yml`
-
-- **Mise à jour des paquets de sécurité** :
-  - Pour **Debian/Ubuntu**, seuls les paquets installés sont mis à jour.
-  - Pour **CentOS/RHEL**, seuls les paquets de sécurité sont mis à jour.
-- **Redémarrage conditionnel** : Si un redémarrage est nécessaire (par exemple après une mise à jour du noyau), le playbook vérifie s'il faut redémarrer les services (comme `sshd`), plutôt que de redémarrer complètement le serveur.
-
-## 📝 Comment Utiliser ce Playbook
-
-### 1. Clonez ce dépôt
-
-Clonez ce projet sur votre machine locale :
-
-git clone https://github.com/AhmedSouai/projet_perso/
+```bash
+git clone https://github.com/AhmedSouai/projet_perso
 cd ansible-infrastructure-automation
-
-
-## 🛑 Attention
-Environnement de production : Bien que ce playbook soit conçu pour être utilisé en production, il est recommandé de le tester d'abord sur un environnement de staging pour éviter toute interruption de service.
-
-Redémarrage des services : Le playbook redémarre certains services comme sshd pour appliquer les mises à jour de sécurité, mais il n'effectue pas de redémarrage complet des serveurs.
-
-## 📄 License
-Ce projet est sous la licence MIT. Vous pouvez librement l'utiliser, le modifier, et le distribuer selon les termes de cette licence.
-
-
