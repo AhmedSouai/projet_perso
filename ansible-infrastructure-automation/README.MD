@@ -1,6 +1,8 @@
 # Automatisation de la Sécurité des Serveurs 🛡️ (Debian/Ubuntu)
 
-Ce projet utilise **Ansible** pour automatiser la sécurisation des serveurs **Debian/Ubuntu**, en intégrant des tâches liées à l'accès SSH et en réalisant une analyse de vulnérabilité avec **OpenSCAP**. L'objectif est d'améliorer la sécurité des systèmes en appliquant les meilleures pratiques et en effectuant des vérifications automatiques de sécurité. 🚀
+Ce projet utilise Ansible pour automatiser la sécurisation des serveurs Debian/Ubuntu, en intégrant des tâches liées à l'accès SSH et en réalisant une analyse de vulnérabilité avec OpenSCAP. L'objectif est d'améliorer la sécurité des systèmes en appliquant les meilleures pratiques et en effectuant des vérifications automatiques de sécurité. 🚀
+
+Note : Ce projet est initialement conçu pour les systèmes RedHat, mais a été adapté pour fonctionner également avec Debian et Ubuntu grâce à des ajustements spécifiques pour ces environnements. 🔄
 
 ## Structure du projet 🗂️
 
@@ -32,7 +34,7 @@ Cette tâche installe les paquets nécessaires pour effectuer un scan de vulnér
 
 Ce fichier exécute le processus complet pour effectuer un scan de vulnérabilités :
 - Création d'un répertoire pour stocker les fichiers OVAL et les rapports.
-- Téléchargement et décompression des fichiers OVAL pour Ubuntu 20.04 (Focal).
+- Téléchargement et décompression des fichiers OVAL pour Ubuntu/Debian.
 - Exécution d'un scan avec **OpenSCAP** pour générer un rapport d'analyse détaillé.
 - Affichage du chemin où le rapport est généré.
 
