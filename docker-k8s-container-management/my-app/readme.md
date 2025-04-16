@@ -18,6 +18,9 @@ my-app/
   ├── frontend/ # Application web en React/Vue/Angular (par exemple)
   
   ├── k8s/ # Manifests Kubernetes (Deployments, Services) 
+
+  ├── .github/
+
   
   └── README.md
 
@@ -68,6 +71,5 @@ kubectl apply -f frontend.yaml   # 🖥️ Déploie le frontend
 kubectl get pods
 kubectl get deployments
 kubectl get services
-
 ```
 
