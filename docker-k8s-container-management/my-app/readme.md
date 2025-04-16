@@ -14,13 +14,15 @@ Le tout est déployé dans un environnement local simulé avec **Vagrant** et **
 
 my-app/
   ├── backend/ # API REST en Node.js (ou autre) 
-  ├── frontend/ # Application web en React/Vue/Angular (par exemple
+  
+  ├── frontend/ # Application web en React/Vue/Angular (par exemple)
+  
   ├── k8s/ # Manifests Kubernetes (Deployments, Services) 
-  ├── .github/workflows/ # Pipelines CI/CD GitHub Actions 
+  
   └── README.md
 
 
-> 📌 **La base de données est déployée via des fichiers YAML Kubernetes, pas via un Dockerfile.**
+> 📌 **La base de données est déployée via des fichiers YAML Kubernetes**
 
 ---
 
