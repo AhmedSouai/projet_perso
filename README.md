@@ -1,7 +1,6 @@
 # 🚀 Projets DevOps
 
-Ce répertoire regroupe mes projets DevOps : CI/CD, automatisation, infrastructure as code et monitoring.  
-J’expérimente avec Kubernetes, Terraform, Ansible, GitHub Actions, Prometheus et bien plus.  
+Ce répertoire regroupe mes projets DevOps : CI/CD, automatisation, infrastructure as code et monitoring.  ghgf
 Objectif : **optimiser le déploiement et la gestion d’infrastructure !** 🔥
 
 ✅ Tous les projets ont été testés dans un environnement de test pour garantir leur bon fonctionnement.
